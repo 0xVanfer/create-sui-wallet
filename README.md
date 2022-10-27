@@ -1,3 +1,11 @@
+# Create SUI wallet.
+
+    Create a SUI wallet and mint 3 test NFTs.
+
+    This version is stable, and will not break. However, when creating a new wallet, chrome will create a new window, and will pop up, so run this when you are leaving your screen.
+
+    Around 30-40 seconds to create a new wallet.
+
 ## Chrome、Chromedriver
 
 Must have chrome driver
