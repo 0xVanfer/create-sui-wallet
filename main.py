@@ -9,8 +9,6 @@ import time
 password = "Asf453jkb4jk3bS"
 # file name to save the memories and addresses
 file_name = "mnemonic"
-# the address already has 50,000,000 SUI
-faucet_mnemonic = "USE YOUR OWN MNEMONIC WITH 50000000 SUI"
 
 
 def df_to_csv(df, name):
@@ -103,28 +101,10 @@ def LogOut(driver):
     click(driver, "/html/body/div/div/div/div[2]/div/div[2]/div/button", 1)
 
 
-def GetSUI(driver, addrToSend):
-    LogIn(driver, faucet_mnemonic)
-    click(driver, "/html/body/div/div/div/div[2]/main/div/div[2]/a[2]", 0)
-    # input amount, must over 10000
-    input_text(driver,
-               "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[1]/div[1]/input", "12345")
-    click(driver,
-          "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[2]/div/button", 0)
-    # input address
-    input_text(driver,
-               "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[1]/div[2]/div[1]/div[1]/textarea", addrToSend)
-    # send sui, wait for pending
-    click(driver,
-          "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[2]/div/button", 7)
-    click(driver, "/html/body/div/div/div/div[2]/main/div/button/i", 0)
-    LogOut(driver)
-
-
 def CreateNewWallet(driver):
     click(driver, '/html/body/div/div/div/div/div/div[2]/a', 0)
     click(driver, "/html/body/div/div/div/div[1]/a", 0)
-
+    # Input any password.
     input_text(
         driver, "/html/body/div/div/div/form/div/fieldset/label[1]/input", password)
     input_text(
@@ -138,36 +118,52 @@ def CreateNewWallet(driver):
     mnemonic = str.replace(mnemonic, "COPY", "")
     mnemonic = str.replace(mnemonic, "\n", "")
     click(driver, "/html/body/div/div/div/button", 0)
-    click(driver,
-          "/html/body/div/div/div/div[2]/nav/div[2]/a[3]", 1)
+    # Now you are in the wallet, and has recorded the mnemonic.
+    # Switch to test net.
+    click(driver, "/html/body/div/div/div/div[1]/a[2]/span[3]", 0)
+    click(
+        driver, "/html/body/div/div/div/div[2]/div/div[2]/div/a[2]/div[2]", 0)
+    click(
+        driver, "/html/body/div/div/div/div[2]/div/div[2]/div/div[2]/ul/li[4]/button", 0)
+    click(driver, "/html/body/div/div/div/div[1]/a[2]/span[1]", 0)
+    # May take a while to switch to test net.
+    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[1]/i", 3)
+    # Request test token, may take long.
+    click(driver, "/html/body/div/div/div/div[2]/main/div/div[4]/button", 3)
+    # Try for at most 3 minutes.
+    for i in range(0, 18):
+        balance = driver.find_element(
+            By.XPATH, "/html/body/div/div/div/div[2]/main/div/div[1]/div/div/span[1]").text
+        if balance != "0":
+            break
+        print("balance still 0")
+        time.sleep(10)
+    # Probably reached faucet require limit.
+    if balance == "0":
+        LogOut(driver)
+        return "", ""
+    # Get the address.
+    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[3]", 1)
     full_addr = driver .find_element(
         By.XPATH, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/a").get_attribute("href")
-    addr = full_addr[41:]
+    addr = full_addr[42:]
+    # Mint nfts.
+    click(
+        driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
+    click(
+        driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
+    click(
+        driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
     LogOut(driver)
     return mnemonic, addr
-
-
-def MintNFT(driver, mnemonic):
-    LogIn(driver, mnemonic)
-    # nft
-    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[3]", 0)
-    click(
-        driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
-    click(
-        driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
-    click(
-        driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
-    # click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[2]/i", 1)
-    LogOut(driver)
 
 
 def CreateHundred(driver):
     CreateNewWalletWindow(driver)
     for i in range(0, 100):
         mnemonic, addr = CreateNewWallet(driver)
-        GetSUI(driver, addr)
-        MintNFT(driver, mnemonic)
-        add_to_csv(file_name, [mnemonic, addr])
+        if addr != "":
+            add_to_csv(file_name, [mnemonic, addr])
 
 
 def main():

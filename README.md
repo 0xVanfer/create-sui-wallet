@@ -1,10 +1,14 @@
 # Create SUI wallet.
 
-    Create a SUI wallet and mint 3 test NFTs.
+Updated on Nov.16.2022
 
-    This version is stable, and will not break. However, when creating a new wallet, chrome will create a new window, and will pop up, so run this when you are leaving your screen.
+Create a SUI wallet and mint 3 test NFTs.
 
-    Around 30-40 seconds to create a new wallet.
+This version is stable, and will not break.
+
+Around 3 minutes to create a new wallet.
+
+Each IP has a limit on requesting test token. You may wait for an hour or change your IP to get another wallet.
 
 ## Chrome、Chromedriver
 
@@ -30,15 +34,9 @@ Must have chrome driver
 
 ## crx
 
-sui_wallet.crx is the v0.2.0 version.
-
-Not up to date, but still can use.
+sui_wallet.crx is the 22.11.9.0_3 version.
 
 You can also create it yourself by visiting chrome://extensions/ and package it as a new crx file.
-
-## Before Starting
-
-Change the constant "faucet_mnemonic" in [main.py](./main.py) to your own mnemonic with 50,000,000 SUI.(air drop)
 
 ## Run
 
