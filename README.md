@@ -10,6 +10,8 @@ Around 3 minutes to create a new wallet.
 
 Each IP has a limit on requesting test token. You may wait for an hour or change your IP to get another wallet.
 
+TODO: One claim can afford several wallets' mint. Transfer the balance to next wallet created if balance is enough.
+
 ## Chrome、Chromedriver
 
 Must have chrome driver
