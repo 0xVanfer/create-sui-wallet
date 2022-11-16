@@ -122,7 +122,9 @@ def CreateNewWallet(driver):
     click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[3]", 1)
     full_addr = driver .find_element(
         By.XPATH, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/a").get_attribute("href")
-    addr = full_addr[42:]
+    addr = full_addr[41:]
+    if len(addr) != 42:
+        addr = full_addr[42:]
     return mnemonic, addr
 
 
