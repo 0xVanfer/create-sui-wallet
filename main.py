@@ -5,26 +5,26 @@ import pandas as pd
 import time
 
 
-# any with one upper letter and length>8
+# Any password with one upper letter and length>8.
 password = "Asf453jkb4jk3bS"
-# file name to save the memories and addresses
+# File name to save the memories and addresses.
 file_name = "mnemonic"
 
 
 def df_to_csv(df, name):
-    # save dataframe as csv
+    # Save dataframe as csv.
     df.to_csv(name + '.csv', index=False)
 
 
 def csv_to_df(name):
-    # read csv to dataframe
+    # Read csv to dataframe.
     df = pd.read_csv(name + '.csv')
     return df
 
 
 def add_to_csv(file_name, add_text):
-    # add a line to file_name.csv
-    # should be like [xx,xx,xx]
+    # Add a line to file_name.csv
+    # Should be like [xx,xx,xx]
     df = csv_to_df(file_name)
     l = len(df)
     df.loc[l] = add_text
@@ -32,8 +32,8 @@ def add_to_csv(file_name, add_text):
 
 
 def click(driver, xpath, time_to_sleep):
-    # click once
-    # if click more times, try another method
+    # Click once.
+    # If click more times, try another method.
     button = driver.find_element(By.XPATH, xpath)
     print('click on "' + button.text + '"')
     clicking = ActionChains(driver).click(button)
@@ -42,13 +42,13 @@ def click(driver, xpath, time_to_sleep):
 
 
 def new_window(driver, url):
-    # create a new window by the url
-    # remember to switch to the new window!
+    # Create a new window by the url.
+    # Remember to switch to the new window!
     driver.execute_script('window.open("'+url+'")')
 
 
 def switch_to_window(driver, window_number):
-    # switch to another window, start from 0
+    # Switch to another window, start from 0.
     driver.switch_to.window(driver.window_handles[window_number])
     print('switched to window numer:', str(window_number))
 
@@ -118,7 +118,20 @@ def CreateNewWallet(driver):
     mnemonic = str.replace(mnemonic, "COPY", "")
     mnemonic = str.replace(mnemonic, "\n", "")
     click(driver, "/html/body/div/div/div/button", 0)
-    # Now you are in the wallet, and has recorded the mnemonic.
+    # Get the address.
+    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[3]", 1)
+    full_addr = driver .find_element(
+        By.XPATH, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/a").get_attribute("href")
+    addr = full_addr[42:]
+    return mnemonic, addr
+
+
+def TransferSUI(driver):
+    1
+
+
+def MintTestToken(driver):
+    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[1]", 1)
     # Switch to test net.
     click(driver, "/html/body/div/div/div/div[1]/a[2]/span[3]", 0)
     click(
@@ -127,26 +140,24 @@ def CreateNewWallet(driver):
         driver, "/html/body/div/div/div/div[2]/div/div[2]/div/div[2]/ul/li[4]/button", 0)
     click(driver, "/html/body/div/div/div/div[1]/a[2]/span[1]", 0)
     # May take a while to switch to test net.
-    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[1]/i", 3)
+    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[1]/i", 5)
     # Request test token, may take long.
-    click(driver, "/html/body/div/div/div/div[2]/main/div/div[4]/button", 3)
-    # Try for at most 3 minutes.
-    for i in range(0, 18):
+    click(driver, "/html/body/div/div/div/div[2]/main/div/div[4]/button", 0)
+    # Try for at most 5 minutes.
+    for i in range(0, 30):
+        time.sleep(10)
         balance = driver.find_element(
             By.XPATH, "/html/body/div/div/div/div[2]/main/div/div[1]/div/div/span[1]").text
         if balance != "0":
             break
         print("balance still 0")
-        time.sleep(10)
-    # Probably reached faucet require limit.
-    if balance == "0":
-        LogOut(driver)
-        return "", ""
-    # Get the address.
+    # Now you should have got the test token. Return whether minted successfully.
+    # True for success, False for fail.
+    return balance != "0"
+
+
+def MintThreeNFTs(driver):
     click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[3]", 1)
-    full_addr = driver .find_element(
-        By.XPATH, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/a").get_attribute("href")
-    addr = full_addr[42:]
     # Mint nfts.
     click(
         driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
@@ -154,16 +165,20 @@ def CreateNewWallet(driver):
         driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
     click(
         driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
-    LogOut(driver)
-    return mnemonic, addr
 
 
 def CreateHundred(driver):
     CreateNewWalletWindow(driver)
     for i in range(0, 100):
+        # Create a new wallet.
         mnemonic, addr = CreateNewWallet(driver)
-        if addr != "":
+        # Mint test tokens. If success, mint nfts; if fail, log out and try another.
+        success = MintTestToken(driver)
+        if success:
+            MintThreeNFTs(driver)
             add_to_csv(file_name, [mnemonic, addr])
+        # Always log out.
+        LogOut(driver)
 
 
 def main():
