@@ -38,7 +38,21 @@ Must have chrome driver
 
 sui_wallet.crx is the 22.11.9.0_3 version.
 
-You can also create it yourself by visiting chrome://extensions/ and package it as a new crx file.
+To package it yourself:
+
+1. visit chrome://version/
+
+2. get your file path, like "/Users/vanfer/Library/Application Support/Google/Chrome/Default"
+
+3. Find "Extentions/opcgpfmipidbgpenhmajoajpbobppdil"
+
+4. copy the path of file "22.11.9.0_0"
+
+5. visit chrome://extensions/
+
+6. package it in dev mode and get your crx file
+
+7. copy the crx file and paste here
 
 ## Run
 
