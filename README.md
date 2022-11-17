@@ -1,8 +1,10 @@
 # Create SUI wallet.
 
-Updated on Nov.16.2022
+Updated on Nov.17.2022
 
-Create a SUI wallet and mint 3 test NFTs.
+SUI wallet now has no access to test net. Wait for update.
+
+<!-- Create a SUI wallet and mint 3 test NFTs.
 
 This version is stable, and will not break.
 
@@ -10,7 +12,7 @@ Around 3 minutes to create a new wallet.
 
 Each IP has a limit on requesting test token. You may wait for an hour or change your IP to get another wallet.
 
-TODO: One claim can afford several wallets' mint. Transfer the balance to next wallet created if balance is enough.
+TODO: One claim can afford several wallets' mint. Transfer the balance to next wallet created if balance is enough. -->
 
 ## Chrome、Chromedriver
 
