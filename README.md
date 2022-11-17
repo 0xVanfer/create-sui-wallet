@@ -2,7 +2,7 @@
 
 Updated on Nov.17.2022
 
-<-- SUI wallet now has no access to test net. Wait for update. -->
+<!-- SUI wallet now has no access to test net. Wait for update. -->
 
 Create a SUI wallet and mint 3 test NFTs.
 
