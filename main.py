@@ -59,7 +59,7 @@ def input_text(driver, xpath, text):
 
 
 def CreateDriver():
-    # new driver
+    # New a driver with extension sui_wallet.
     option = webdriver.ChromeOptions()
     option.add_extension("./sui_wallet.crx")
     driver = webdriver.Chrome(options=option)
@@ -69,6 +69,7 @@ def CreateDriver():
 
 
 def CreateNewWalletWindow(driver):
+    # Create a new window and switch to it.
     url = "chrome-extension://opcgpfmipidbgpenhmajoajpbobppdil/ui.html#/welcome"
     new_window(driver, url)
     switch_to_window(driver, 1)
@@ -82,6 +83,7 @@ def CreateNewWalletWindow(driver):
 
 
 def SetWalletSleepTime(driver):
+    # The wallet will lock after 5 minutes, change it to 30 minutes(max).
     click(driver, "/html/body/div/div/div/div[1]/a[2]", 0)
     click(
         driver, "/html/body/div/div/div/div[2]/div/div[2]/div/a[1]/div[2]", 0)
@@ -93,10 +95,11 @@ def SetWalletSleepTime(driver):
 
 
 def LogIn(driver, mnemonic):
+    # Log in an account with mnemonic.
     click(driver, '/html/body/div/div/div/div/div/div[2]/a', 0)
     click(driver, "/html/body/div/div/div/div[2]/a", 0)
     input_text(driver, "/html/body/div/div/div/form/label/textarea", mnemonic)
-    click(driver, "/html/body/div/div/div/form/button", 0)
+    click(driver, "/html/body/div/div/div/form/div[2]/button", 0)
     input_text(driver,
                "/html/body/div/div/div/form/label[1]/input", password)
     input_text(driver,
@@ -106,6 +109,7 @@ def LogIn(driver, mnemonic):
 
 
 def LogOut(driver):
+    # Log out an account.
     click(driver, "/html/body/div/div/div/div[1]/a[2]", 0)
     click(
         driver, "/html/body/div/div/div/div[2]/div/div[2]/div/a[1]/div[2]", 0)
@@ -113,6 +117,7 @@ def LogOut(driver):
 
 
 def CreateNewWallet(driver):
+    # Create a new wallet.
     click(driver, '/html/body/div/div/div/div/div/div[2]/a', 0)
     click(driver, "/html/body/div/div/div/div[1]/a", 0)
     # Input any password.
@@ -124,6 +129,7 @@ def CreateNewWallet(driver):
     click(
         driver, "/html/body/div/div/div/form/div/fieldset/label[3]/span[1]", 0)
     click(driver, "/html/body/div/div/div/form/button", 1)
+    # Get mnemonic.
     mnemonic = driver .find_element(
         By.XPATH, "/html/body/div/div/div/div[2]").text
     mnemonic = str.replace(mnemonic, "COPY", "")
@@ -133,18 +139,35 @@ def CreateNewWallet(driver):
     click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[3]", 1)
     full_addr = driver .find_element(
         By.XPATH, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/a").get_attribute("href")
+    # /html/body/div/div/div/div[1]/a[2]/span[2]
     addr = full_addr[41:]
     if len(addr) != 42:
         addr = full_addr[42:]
     return mnemonic, addr
 
 
-def TransferSUI(driver):
-    1
+def SendSUI(driver, sendAmount, receiver):
+    try:
+        click(
+            driver, "/html/body/div/div/div/div[2]/main/div/div[2]/a[2]/div/i", 0)
+        input_text(
+            driver, "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[1]/div[1]/input", sendAmount)
+        # Continue. If insufficient, button will be grey.
+        click(
+            driver, "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[2]/div/button", 0)
+        # Fill in address.
+        input_text(
+            driver, "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[1]/div[2]/div[1]/div[1]/textarea", receiver)
+        # Send, may take a while. WAIT.
+        click(
+            driver, "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[2]/div/button", 15)
+        click(driver, "/html/body/div/div/div/div[2]/main/div/button/i", 0)
+        return True
+    except:
+        return False
 
 
-def MintTestToken(driver):
-    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[1]", 1)
+def SwitchToTestNet(driver):
     # Switch to test net.
     click(driver, "/html/body/div/div/div/div[1]/a[2]/span[3]", 0)
     click(
@@ -152,8 +175,13 @@ def MintTestToken(driver):
     click(
         driver, "/html/body/div/div/div/div[2]/div/div[2]/div/div[2]/ul/li[4]/button", 0)
     click(driver, "/html/body/div/div/div/div[1]/a[2]/span[1]", 0)
-    # May take a while to switch to test net.
-    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[1]/i", 5)
+    # May take a while to switch to test net. WAIT.
+    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[1]/i", 10)
+
+
+def MintTestToken(driver):
+    click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[1]", 1)
+    SwitchToTestNet(driver)
     # Request test token, may take long.
     click(driver, "/html/body/div/div/div/div[2]/main/div/div[4]/button", 0)
     # Try for at most 5 minutes.
@@ -172,7 +200,7 @@ def MintTestToken(driver):
 
 def MintThreeNFTs(driver):
     click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[3]", 1)
-    # Mint nfts.
+    # Mint nfts. WAIT.
     click(
         driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
     click(
@@ -185,15 +213,41 @@ def CreateHundred(driver):
     CreateNewWalletWindow(driver)
     for i in range(0, 100):
         # Create a new wallet.
-        mnemonic, addr = CreateNewWallet(driver)
+        # It is called father because the balance of next five wallets will come from this wallet.
+        fatherMnemonic, fatherAddr = CreateNewWallet(driver)
         SetWalletSleepTime(driver)
-        # Mint test tokens. If success, mint nfts; if fail, log out and try another.
+        # Mint test tokens.
         success = MintTestToken(driver)
+        # If mint test token success, mint nfts and continue the logic.
         if success:
             MintThreeNFTs(driver)
-            add_to_csv(file_name, [mnemonic, addr])
-        # Always log out.
-        LogOut(driver)
+            add_to_csv(file_name, [fatherMnemonic, fatherAddr])
+            LogOut(driver)
+            for j in range(0, 3):
+                # Create a new wallet and get its mnemonic and address.
+                sonMnemonic, sonAddr = CreateNewWallet(driver)
+                LogOut(driver)
+                # Log in father wallet and send it some SUI.
+                LogIn(driver, fatherMnemonic)
+                SwitchToTestNet(driver)
+                # Gas budget for minting an nft is 10000.
+                # Which means at least 0.00001 should be sent to the target address.
+                success = SendSUI(driver, "0.000015", sonAddr)
+                # If sent successfully, log in son wallet and mint nfts.
+                if success:
+                    LogOut(driver)
+                    LogIn(driver, sonMnemonic)
+                    SwitchToTestNet(driver)
+                    MintThreeNFTs(driver)
+                    add_to_csv(file_name, [sonMnemonic, sonAddr])
+                    LogOut(driver)
+                # If send SUI failed, continue to another new father wallet.
+                else:
+                    LogOut(driver)
+                    break
+        # If mint test token fail, log out and try another.
+        else:
+            LogOut(driver)
 
 
 def main():
@@ -201,7 +255,7 @@ def main():
     # df_to_csv(df, file_name)
     start = time.time()
     driver = CreateDriver()
-    for i in range(0, 10000):
+    for i in range(0, 100):
         try:
             CreateHundred(driver)
         except:

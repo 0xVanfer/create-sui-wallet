@@ -1,18 +1,19 @@
 # Create SUI wallet.
 
-Updated on Nov.17.2022
+Updated on Nov.18.2022
 
-<!-- SUI wallet now has no access to test net. Wait for update. -->
-
-Create a SUI wallet and mint 3 test NFTs.
-
-This version is stable, and will not break.
-
-Around 3 minutes to create a new wallet.
+Create a wallet, request test SUI and send SUI to three wallets. In all four wallets, claim 3 NFTs.
 
 Each IP has a limit on requesting test token. You may wait for an hour or change your IP to get another wallet.
 
-TODO: One claim can afford several wallets' mint. Transfer the balance to next wallet created if balance is enough.
+2 minutes on average for creating a wallet. 5\*4=20 wallets per hour.
+
+TODO:
+balance flow:
+
+Now: wallet1 ==> wallet2 & wallet3 & wallet4. create 4 wallets per SUI minting.
+
+Expected: wallet1 ==> wallet2 ==> wallet3 ==> ... can create about 20 wallets per SUI minting.
 
 ## Chrome、Chromedriver
 
@@ -59,6 +60,11 @@ To package it yourself:
 ## Run
 
 > python3 -m main
+
+## Bugs
+
+Transactions may take several seconds, so if your program breaks because of bad network condition,
+find "WAIT" in main.py, and edit the time to sleep.
 
 ###### Support
 
