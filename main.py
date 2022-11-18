@@ -81,6 +81,17 @@ def CreateNewWalletWindow(driver):
         return
 
 
+def SetWalletSleepTime(driver):
+    click(driver, "/html/body/div/div/div/div[1]/a[2]", 0)
+    click(
+        driver, "/html/body/div/div/div/div[2]/div/div[2]/div/a[1]/div[2]", 0)
+    input_text(
+        driver, "/html/body/div/div/div/div[2]/div/div[2]/div/div[2]/div[2]/form/div/input", "\b30")
+    click(
+        driver, "/html/body/div/div/div/div[2]/div/div[2]/div/div[2]/div[2]/form/div/div/button", 0)
+    click(driver, "/html/body/div/div/div/div[1]/a[2]", 0)
+
+
 def LogIn(driver, mnemonic):
     click(driver, '/html/body/div/div/div/div/div/div[2]/a', 0)
     click(driver, "/html/body/div/div/div/div[2]/a", 0)
@@ -146,6 +157,7 @@ def MintTestToken(driver):
     # Request test token, may take long.
     click(driver, "/html/body/div/div/div/div[2]/main/div/div[4]/button", 0)
     # Try for at most 5 minutes.
+    # You can add the time to up to 30 minutes, or the wallet will fall asleep.
     for i in range(0, 30):
         time.sleep(10)
         balance = driver.find_element(
@@ -174,6 +186,7 @@ def CreateHundred(driver):
     for i in range(0, 100):
         # Create a new wallet.
         mnemonic, addr = CreateNewWallet(driver)
+        SetWalletSleepTime(driver)
         # Mint test tokens. If success, mint nfts; if fail, log out and try another.
         success = MintTestToken(driver)
         if success:
