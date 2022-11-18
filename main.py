@@ -64,7 +64,7 @@ def CreateDriver():
     option.add_extension("./sui_wallet.crx")
     driver = webdriver.Chrome(options=option)
     driver.maximize_window()
-    time.sleep(3)
+    time.sleep(5)
     return driver
 
 
@@ -74,7 +74,7 @@ def CreateNewWalletWindow(driver):
     new_window(driver, url)
     switch_to_window(driver, 1)
     driver.close()
-    time.sleep(3)
+    time.sleep(5)
     switch_to_window(driver, 1)
     try:
         LogOut(driver)
@@ -148,6 +148,7 @@ def CreateNewWallet(driver):
 
 def SendSUI(driver, sendAmount, receiver):
     try:
+        click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[1]/i", 0)
         click(
             driver, "/html/body/div/div/div/div[2]/main/div/div[2]/a[2]/div/i", 0)
         input_text(
@@ -160,9 +161,12 @@ def SendSUI(driver, sendAmount, receiver):
             driver, "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[1]/div[2]/div[1]/div[1]/textarea", receiver)
         # Send, may take a while. WAIT.
         click(
-            driver, "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[2]/div/button", 15)
-        click(driver, "/html/body/div/div/div/div[2]/main/div/button/i", 0)
-        return True
+            driver, "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[2]/div/button", 20)
+        try:
+            click(driver, "/html/body/div/div/div/div[2]/main/div/button/i", 0)
+            return True
+        except:
+            return True
     except:
         return False
 
@@ -209,45 +213,47 @@ def MintThreeNFTs(driver):
         driver, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/button", 5)
 
 
-def CreateHundred(driver):
+def CreatePack(driver):
     CreateNewWalletWindow(driver)
-    for i in range(0, 100):
-        # Create a new wallet.
-        # It is called father because the balance of next five wallets will come from this wallet.
-        fatherMnemonic, fatherAddr = CreateNewWallet(driver)
-        SetWalletSleepTime(driver)
-        # Mint test tokens.
-        success = MintTestToken(driver)
-        # If mint test token success, mint nfts and continue the logic.
-        if success:
-            MintThreeNFTs(driver)
-            add_to_csv(file_name, [fatherMnemonic, fatherAddr])
+    mns = pd.DataFrame(columns=["mnemonic", "addr"])
+    # Max 20.
+    walletLength = 20
+
+    # Create wallets first and save in dataframe.
+    for i in range(0, walletLength):
+        mn, addr = CreateNewWallet(driver)
+        mns.loc[len(mns)] = [mn, addr]
+        print("NO."+str(i), "wallet created.")
+        LogOut(driver)
+
+    # Log in the first wallet and get test SUI.
+    LogIn(driver, mns["mnemonic"][0])
+    SetWalletSleepTime(driver)
+    success = MintTestToken(driver)
+    if not success:
+        LogOut(driver)
+        return
+    # Mint nfts.
+    MintThreeNFTs(driver)
+    add_to_csv(file_name, mns.loc[0])
+    # Send balance to next wallet.
+    success = SendSUI(driver, "0.000055", mns["addr"][1])
+    if not success:
+        LogOut(driver)
+        return
+    LogOut(driver)
+
+    # Later wallets.
+    for i in range(1, walletLength):
+        LogIn(driver, mns["mnemonic"][i])
+        SwitchToTestNet(driver)
+        MintThreeNFTs(driver)
+        add_to_csv(file_name, mns.loc[i])
+        success = SendSUI(driver, "0.0000"+str(55-i*5), mns["addr"][i+1])
+        if not success:
             LogOut(driver)
-            for j in range(0, 3):
-                # Create a new wallet and get its mnemonic and address.
-                sonMnemonic, sonAddr = CreateNewWallet(driver)
-                LogOut(driver)
-                # Log in father wallet and send it some SUI.
-                LogIn(driver, fatherMnemonic)
-                SwitchToTestNet(driver)
-                # Gas budget for minting an nft is 10000.
-                # Which means at least 0.00001 should be sent to the target address.
-                success = SendSUI(driver, "0.000015", sonAddr)
-                # If sent successfully, log in son wallet and mint nfts.
-                if success:
-                    LogOut(driver)
-                    LogIn(driver, sonMnemonic)
-                    SwitchToTestNet(driver)
-                    MintThreeNFTs(driver)
-                    add_to_csv(file_name, [sonMnemonic, sonAddr])
-                    LogOut(driver)
-                # If send SUI failed, continue to another new father wallet.
-                else:
-                    LogOut(driver)
-                    break
-        # If mint test token fail, log out and try another.
-        else:
-            LogOut(driver)
+            return
+        LogOut(driver)
 
 
 def main():
@@ -255,9 +261,9 @@ def main():
     # df_to_csv(df, file_name)
     start = time.time()
     driver = CreateDriver()
-    for i in range(0, 100):
+    for i in range(0, 10000):
         try:
-            CreateHundred(driver)
+            CreatePack(driver)
         except:
             continue
 
