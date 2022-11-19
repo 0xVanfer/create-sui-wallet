@@ -8,6 +8,7 @@ import time
 # Any password with one upper letter and length>8.
 password = "Asf453jkb4jk3bS"
 # File name to save the memories and addresses.
+# xxx.csv.
 file_name = "mnemonic"
 
 
@@ -87,6 +88,7 @@ def SetWalletSleepTime(driver):
     click(driver, "/html/body/div/div/div/div[1]/a[2]", 0)
     click(
         driver, "/html/body/div/div/div/div[2]/div/div[2]/div/a[1]/div[2]", 0)
+    # Delete default "5" and set the number to 30.
     input_text(
         driver, "/html/body/div/div/div/div[2]/div/div[2]/div/div[2]/div[2]/form/div/input", "\b30")
     click(
@@ -113,7 +115,8 @@ def LogOut(driver):
     click(driver, "/html/body/div/div/div/div[1]/a[2]", 0)
     click(
         driver, "/html/body/div/div/div/div[2]/div/div[2]/div/a[1]/div[2]", 0)
-    click(driver, "/html/body/div/div/div/div[2]/div/div[2]/div/button", 1)
+    # After logging out, it can take a while for the page to reload.
+    click(driver, "/html/body/div/div/div/div[2]/div/div[2]/div/button", 5)
 
 
 def CreateNewWallet(driver):
@@ -125,7 +128,6 @@ def CreateNewWallet(driver):
         driver, "/html/body/div/div/div/form/div/fieldset/label[1]/input", password)
     input_text(
         driver, "/html/body/div/div/div/form/div/fieldset/label[2]/input", password)
-
     click(
         driver, "/html/body/div/div/div/form/div/fieldset/label[3]/span[1]", 0)
     click(driver, "/html/body/div/div/div/form/button", 1)
@@ -136,10 +138,11 @@ def CreateNewWallet(driver):
     mnemonic = str.replace(mnemonic, "\n", "")
     click(driver, "/html/body/div/div/div/button", 0)
     # Get the address.
+    # The address shown in the wallet is not complete. Use blockscan link to read the address.
     click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[3]", 1)
     full_addr = driver .find_element(
         By.XPATH, "/html/body/div/div/div/div[2]/main/div/div/section/div/div[1]/a").get_attribute("href")
-    # /html/body/div/div/div/div[1]/a[2]/span[2]
+    # Do not understand why, link length is not constant.
     addr = full_addr[41:]
     if len(addr) != 42:
         addr = full_addr[42:]
@@ -147,6 +150,7 @@ def CreateNewWallet(driver):
 
 
 def SendSUI(driver, sendAmount, receiver):
+    # If sent successfully, return True, else return False.
     try:
         click(driver, "/html/body/div/div/div/div[2]/nav/div[2]/a[1]/i", 0)
         click(
@@ -163,6 +167,7 @@ def SendSUI(driver, sendAmount, receiver):
         click(
             driver, "/html/body/div/div/div/div[2]/main/div/div[2]/form/div[2]/div/button", 20)
         try:
+            # There are two types of tx result. Sent successful window may not pop up.
             click(driver, "/html/body/div/div/div/div[2]/main/div/button/i", 0)
             return True
         except:
@@ -216,8 +221,9 @@ def MintThreeNFTs(driver):
 def CreatePack(driver):
     CreateNewWalletWindow(driver)
     mns = pd.DataFrame(columns=["mnemonic", "addr"])
-    # Max 20.
-    walletLength = 20
+    # Max 10.
+    # After 10 wallets, the balance will be 0.00001, not enough for minting nfts.
+    walletLength = 10
 
     # Create wallets first and save in dataframe.
     for i in range(0, walletLength):
@@ -237,6 +243,7 @@ def CreatePack(driver):
     MintThreeNFTs(driver)
     add_to_csv(file_name, mns.loc[0])
     # Send balance to next wallet.
+    # If you want to leave more balance in your wallets, reduce the amount to send.
     success = SendSUI(driver, "0.000055", mns["addr"][1])
     if not success:
         LogOut(driver)
@@ -249,6 +256,9 @@ def CreatePack(driver):
         SwitchToTestNet(driver)
         MintThreeNFTs(driver)
         add_to_csv(file_name, mns.loc[i])
+        # Send SUI to next wallet.
+        # If you want to leave more balance in your wallets, reduce the amount to send.
+        # Use 0.000055-0.000005*i will let the string to be 5e-5.
         success = SendSUI(driver, "0.0000"+str(55-i*5), mns["addr"][i+1])
         if not success:
             LogOut(driver)
