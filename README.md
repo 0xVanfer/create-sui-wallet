@@ -1,14 +1,16 @@
 # Create SUI wallet.
 
-Updated on Nov.18.2022
+Updated on Nov.19.2022
 
-In one round, create 20 wallets with 3 nfts.
+Create wallets with 3 nfts and save the mnemonic and address to [mnemonic.csv](mnemonic.csv).
 
 Highly efficient, compared with previous versions.
 
 <!-- Each IP has a limit on requesting test token. You may wait for an hour or change your IP to get another wallet. -->
 
-## Chrome、Chromedriver
+## Preparation
+
+#### Chrome、Chromedriver
 
 Must have chrome driver
 
@@ -24,33 +26,39 @@ Must have chrome driver
 
     > $ xattr -d com.apple.quarantine chromedriver
 
-## pip
+#### Python packages
 
 > pip3 install selenium
 
 > pip3 install pandas
 
-## crx
+#### crx
 
-sui_wallet.crx is the 22.11.9.0_3 version.
+sui_wallet.crx is the 22.11.9 version.
 
-To package it yourself:
+Users do not have to worry about it, but in case of file broken or locked, you can alse package it your self.
 
-1. visit chrome://version/
+0. Install sui wallet extension. ID: opcgpfmipidbgpenhmajoajpbobppdil
 
-2. get your file path, like "/Users/vanfer/Library/Application Support/Google/Chrome/Default"
+1. Visit chrome://version/
+
+2. Get your file path, like "/Users/vanfer/Library/Application Support/Google/Chrome/Default"
 
 3. Find "Extentions/opcgpfmipidbgpenhmajoajpbobppdil"
 
-4. copy the path of file "22.11.9.0_0"
+4. Copy the path of file "22.11.9.0_0"
 
-5. visit chrome://extensions/
+5. Visit chrome://extensions/
 
-6. package it in dev mode and get your crx file
+6. Package it in dev mode and get your crx file. Named as 22.11.9.0_0.crx
 
-7. copy the crx file and paste here
+7. Copy the crx file and paste here, rename as sui_wallet.crx.
 
 ## Run
+
+Make sure you have google chrome and chrome driver installed.
+
+Make sure you have selenium and pandas installed(pip3).
 
 > python3 -m main
 
