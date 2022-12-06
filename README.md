@@ -1,5 +1,7 @@
 # Create SUI wallet.
 
+## Stopped Working in December. Cannot request gas token(SUI) now.
+
 Updated on Nov.19.2022
 
 Create wallets with 3 nfts and save the mnemonic and address to [mnemonic.csv](mnemonic.csv).
